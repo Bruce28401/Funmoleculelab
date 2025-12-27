@@ -58,6 +58,7 @@ const moleculeSchema = {
   required: ["name", "formula", "description", "funFact", "properties", "atoms", "bonds"]
 };
 
+// Generate molecule data using the recommended model for complex reasoning tasks
 export const generateMoleculeData = async (substance: string): Promise<MoleculeData> => {
   // 1. Check Local Cache First
   const cacheKey = `${STORAGE_KEYS.DATA_PREFIX}${cleanKey(substance)}`;
@@ -72,6 +73,7 @@ export const generateMoleculeData = async (substance: string): Promise<MoleculeD
     const apiKey = process.env.API_KEY;
     if (!apiKey) throw new Error("API Key missing");
 
+    // Initialize Gemini API client correctly
     const ai = new GoogleGenAI({ apiKey });
 
     const prompt = `
@@ -88,8 +90,9 @@ export const generateMoleculeData = async (substance: string): Promise<MoleculeD
       5. The description should be lively, interesting, and easy for primary/middle school students to understand.
     `;
 
+    // Complex STEM task: Use 'gemini-3-pro-preview'
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3-pro-preview",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -98,13 +101,13 @@ export const generateMoleculeData = async (substance: string): Promise<MoleculeD
       }
     });
 
+    // Access the text property directly (not a method)
     const text = response.text;
     if (!text) throw new Error("No data received from AI");
 
     const rawData = JSON.parse(text);
 
     // Post-process to add visual properties (colors, radii) based on element type
-    // and map to our internal type safely
     const processedAtoms = rawData.atoms.map((atom: any, index: number) => ({
       ...atom,
       id: index,
@@ -128,8 +131,9 @@ export const generateMoleculeData = async (substance: string): Promise<MoleculeD
   }
 };
 
+// Generate speech using the designated text-to-speech model
 export const generateMoleculeSpeech = async (text: string, moleculeNameForCache?: string): Promise<string> => {
-  // 1. Check Local Cache (if a molecule name is provided)
+  // 1. Check Local Cache
   let cacheKey = '';
   if (moleculeNameForCache) {
     cacheKey = `${STORAGE_KEYS.AUDIO_PREFIX}${cleanKey(moleculeNameForCache)}`;
@@ -145,7 +149,7 @@ export const generateMoleculeSpeech = async (text: string, moleculeNameForCache?
 
   const ai = new GoogleGenAI({ apiKey });
 
-  // Use the specific TTS model
+  // Use the dedicated TTS model
   const response = await ai.models.generateContent({
     model: "gemini-2.5-flash-preview-tts",
     contents: [{ parts: [{ text }] }],
@@ -153,7 +157,7 @@ export const generateMoleculeSpeech = async (text: string, moleculeNameForCache?
       responseModalities: [Modality.AUDIO],
       speechConfig: {
         voiceConfig: {
-          prebuiltVoiceConfig: { voiceName: 'Kore' }, // 'Kore' is a good, clear voice
+          prebuiltVoiceConfig: { voiceName: 'Kore' },
         },
       },
     },
@@ -164,7 +168,7 @@ export const generateMoleculeSpeech = async (text: string, moleculeNameForCache?
     throw new Error("Failed to generate audio");
   }
 
-  // 3. Save to Cache (if key exists)
+  // 3. Save to Cache
   if (cacheKey) {
     saveToCache(cacheKey, base64Audio);
   }

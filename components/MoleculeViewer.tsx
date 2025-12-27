@@ -1,31 +1,14 @@
+
 import React, { useRef, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Center, Text, Float, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 import { Atom, Bond, MoleculeData } from '../types';
 
-// Add missing type definitions for React Three Fiber intrinsic elements
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      mesh: any;
-      sphereGeometry: any;
-      meshPhysicalMaterial: any;
-      tubeGeometry: any;
-      meshStandardMaterial: any;
-      group: any;
-      ambientLight: any;
-      pointLight: any;
-      spotLight: any;
-      directionalLight: any;
-      color: any;
-    }
-  }
-}
-
 // Component to render a single Atom
 const AtomSphere: React.FC<{ atom: Atom }> = ({ atom }) => {
   return (
+    /* mesh and other Three.js elements are managed by React Three Fiber's own type definitions */
     <mesh position={[atom.x, atom.y, atom.z]}>
       <sphereGeometry args={[atom.radius, 32, 32]} />
       <meshPhysicalMaterial 
@@ -104,6 +87,7 @@ interface MoleculeViewerProps {
 
 const MoleculeViewer: React.FC<MoleculeViewerProps> = ({ data }) => {
   return (
+    /* Standard HTML tags like div are now correctly typed after removing the destructive global JSX augmentation */
     <div className="w-full h-full min-h-[400px] relative bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-white/10">
       <Canvas camera={{ position: [0, 0, 8], fov: 45 }}>
         <color attach="background" args={['#0f172a']} />
