@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Search, FlaskConical, Loader2, Sparkles, BookOpen, Download } from 'lucide-react';
+import { Search, FlaskConical, Loader2, BookOpen, Download } from 'lucide-react';
 import { MoleculeData, AppState } from './types';
 import { generateMoleculeData } from './services/geminiService';
 import { SAMPLE_MOLECULES } from './constants';
